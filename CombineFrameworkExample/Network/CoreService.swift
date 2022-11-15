@@ -15,7 +15,8 @@ struct CoreService {
             method: HTTPMethod,
             parameters: Parameters?,
             decoder: JSONDecoder = JSONDecoder(),
-            headers: HTTPHeaders? = nil
+            headers: HTTPHeaders? = nil,
+            responseModel: T
         ) -> Future<T, Error> {
             return Future({ promise in
                 AF.request(
