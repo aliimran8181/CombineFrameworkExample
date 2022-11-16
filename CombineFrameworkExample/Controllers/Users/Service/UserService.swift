@@ -1,32 +1,30 @@
 //
-//  UserViewModel.swift
-//  CombineAlamofire
+//  UserService.swift
+//  CombineFrameworkExample
 //
-//  Created by Ali imran on 11/15/22.
+//  Created by Ali Zaib on 16/11/2022.
 //
 
 import Foundation
 import Combine
-import Alamofire
 
-protocol UserViewModelProtocol {
+protocol UserServiceProtocol {
     func getData(_ parameters: [String: String]) -> Future<[UserModel], Error>
 }
-class UserViewModel: UserViewModelProtocol, ObservableObject {
+
+class UserService: UserServiceProtocol {
     
     private var cancellables = Set<AnyCancellable>()
-    var userData = [UserModel]()
-    private let service: UserServiceProtocol
-    
-    init(service: UserServiceProtocol) {
-        self.service = service
+    let network: CoreNetworkingProtocol
+    init(network: CoreNetworkingProtocol) {
+        self.network = network
     }
     
     func getData(_ parameters: [String: String]) -> Future<[UserModel], Error>  {
+        let request = UserRequest()
         return Future ({ promise in
             
-            self.service.getData([:])
-            
+            self.network.request(request)
                 .sink { completion in
                     switch completion {
                     case .failure(let err):
@@ -36,11 +34,12 @@ class UserViewModel: UserViewModelProtocol, ObservableObject {
                         print("Finished")
                     }
                 }
-        receiveValue: { [weak self] User in
+        receiveValue: { User in
+            
             promise (.success(User))
-            self?.userData = User
         }
         .store(in: &self.cancellables)
         })
+        
     }
 }
