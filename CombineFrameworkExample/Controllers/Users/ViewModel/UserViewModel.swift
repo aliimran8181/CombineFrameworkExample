@@ -21,7 +21,8 @@ class UserViewModel: ObservableObject {
                 url: url,
                 method: HTTPMethod.get,
                 parameters: parameters,
-                responseModel: [UserModel]()
+                responseModel: [UserModel](),
+                encoding: JSONEncoding.default
             )
             .sink { completion in
                 switch completion {

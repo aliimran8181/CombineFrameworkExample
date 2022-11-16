@@ -9,7 +9,8 @@ import UIKit
 import Combine
 
 class UserListVC: UIViewController {
-    private var userViewModel = UserViewModel()
+    private var ViewModel = UserViewModel()
+    @IBOutlet weak var tableView: UITableView!
     var userData = [UserModel]()
     private var cancellables = Set<AnyCancellable>()
     var url = "https://jsonplaceholder.typicode.com/users"
@@ -39,23 +40,31 @@ extension UserListVC {
     fileprivate func initialization() {
         
         self.title = "User List"
-        userViewModel.getData([:], url: url)
+        ViewModel.getData([:], url: url)
             .sink { completion in
                     switch completion {
                     case .failure(let err):
+                        self.userData = []
+                        self.tableView.reloadData()
                         print("Error is \(err.localizedDescription)")
                     case .finished:
+                        self.tableView.reloadData()
                         print("Finished")
                     }
             }
             receiveValue: { [weak self] User in
-                self?.setData(users: User)
+                self?.userData = User
     }
             .store(in: &cancellables)
     }
 }
-extension UserListVC {
-    func setData(users: [UserModel]) {
-        print(users)
+extension UserListVC: UITableViewDelegate,UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return userData.count
+    }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! UserListTableViewCell
+        cell.titleLabel.text = userData[indexPath.row].name ?? ""
+        return cell
     }
 }

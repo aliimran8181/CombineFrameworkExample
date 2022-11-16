@@ -16,13 +16,15 @@ struct CoreService {
             parameters: Parameters?,
             decoder: JSONDecoder = JSONDecoder(),
             headers: HTTPHeaders? = nil,
-            responseModel: T
+            responseModel: T,
+            encoding: ParameterEncoding = URLEncoding.default
         ) -> Future<T, Error> {
             return Future({ promise in
                 AF.request(
                     url,
                     method: method,
                     parameters: parameters,
+                    encoding: encoding,
                     headers: headers
                 ).responseDecodable(decoder: decoder, completionHandler: { (response: DataResponse<T, AFError>) in
                     switch response.result {
