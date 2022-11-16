@@ -9,8 +9,11 @@ import UIKit
 import Combine
 
 class UserListVC: UIViewController {
-    private var ViewModel = UserViewModel()
+    
     @IBOutlet weak var tableView: UITableView!
+    
+    weak var coordinator: MainCoordinator?
+    var viewModel: UserViewModelProtocol!
     var userData = [UserModel]()
     private var cancellables = Set<AnyCancellable>()
     var url = "https://jsonplaceholder.typicode.com/users"
@@ -40,22 +43,23 @@ extension UserListVC {
     fileprivate func initialization() {
         
         self.title = "User List"
-        ViewModel.getData([:], url: url)
+        
+        viewModel.getData([:])
             .sink { completion in
-                    switch completion {
-                    case .failure(let err):
-                        self.userData = []
-                        self.tableView.reloadData()
-                        print("Error is \(err.localizedDescription)")
-                    case .finished:
-                        self.tableView.reloadData()
-                        print("Finished")
-                    }
+                switch completion {
+                case .failure(let err):
+                    self.userData = []
+                    self.tableView.reloadData()
+                    print("Error is \(err.localizedDescription)")
+                case .finished:
+                    self.tableView.reloadData()
+                    print("Finished")
+                }
             }
-            receiveValue: { [weak self] User in
-                self?.userData = User
+    receiveValue: { [weak self] User in
+        self?.userData = User
     }
-            .store(in: &cancellables)
+    .store(in: &cancellables)
     }
 }
 extension UserListVC: UITableViewDelegate,UITableViewDataSource {
